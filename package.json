@@ -1,0 +1,15 @@
+{
+  "name": "video-manager",
+  "version": "1.0.0",
+  "description": "handling videos ",
+  "keywords": [
+    "video"
+  ],
+  "license": "ISC",
+  "author": "abhishek jha",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
