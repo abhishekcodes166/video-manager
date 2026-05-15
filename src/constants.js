@@ -1,1 +1,1 @@
-export const DB_NAME="video_manager";
+export const DB_NAME="video_manager";``
