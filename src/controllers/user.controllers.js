@@ -1,8 +1,9 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { Apierror } from "../utils/apiError.js";
+import { asyncHandler } from "/Users/abhishekjha/Desktop/video manager/src/utils/aysncHandler.js";
+import { Apierror } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
 
 const registerUser = asyncHandler(async (req, res) => {
 
@@ -28,6 +29,8 @@ const registerUser = asyncHandler(async (req, res) => {
             "User already exists with this email or username"
         );
     }
+
+    console.log("Files received in controller:", req.files);
 
     // safer optional chaining
     const avatarLocalPath = req.files?.avatar?.[0]?.path;
@@ -76,4 +79,167 @@ const registerUser = asyncHandler(async (req, res) => {
     );
 });
 
-export { registerUser };
+const loginUser = asyncHandler(async (req, res) => {
+
+    // req body se data lao
+    // username ya email se user dhundo
+    // password check karo
+    // access token generate karo
+    // refresh token generate karo and save in db
+    // response me access token bhejo
+
+    const { username, password } = req.body;
+
+    if (!username || !password) {
+        throw new Apierror(400, "Username and password are required");
+    }
+
+    const user = await User.findOne({
+        $or: [
+            { email: username },
+            { username: username.toLowerCase() }
+        ]
+    }).select("+password +refreshToken");
+
+    if (!user) {
+        throw new Apierror(
+            404,
+            "User not found with this email or username"
+        );
+    }
+
+    const isPasswordCorrect = await user.isPasswordCorrect(password);
+
+    if (!isPasswordCorrect) {
+        throw new Apierror(401, "Incorrect password");
+    }
+
+    const accessToken = user.generateAccessToken();
+    const refreshToken = user.generateRefreshToken();
+
+    user.refreshToken = refreshToken;
+
+    await user.save({ validateBeforeSave: false });
+
+    const loggedinUser = await User.findById(user._id)
+        .select("-password -refreshToken");
+
+    const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+
+    return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", refreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    user: loggedinUser,
+                    accessToken,
+                    refreshToken
+                },
+                "User logged in successfully"
+            )
+        );
+
+});
+
+const logoutUser = asyncHandler(async (req, res) => {
+
+    const refreshToken =
+        req.cookies?.refreshToken ||
+        req.headers.authorization?.split(" ")[1];
+
+    if (!refreshToken) {
+        throw new Apierror(400, "Refresh token is required");
+    }
+
+    const decodedToken = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+    );
+
+    const user = await User.findById(decodedToken?._id);
+
+    if (!user) {
+        throw new Apierror(404, "User not found");
+    }
+
+    user.refreshToken = null;
+
+    await user.save({ validateBeforeSave: false });
+
+    const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 0,
+    };
+
+    return res
+        .status(200)
+        .cookie("refreshToken", "", options)
+        .cookie("accessToken", "", options)
+        .json(
+            new ApiResponse(
+                200,
+                null,
+                "User logged out successfully"
+            )
+        );
+});
+
+const refreshAccessToken = asyncHandler(async (req, res) => {
+
+    const refreshToken =
+        req.cookies?.refreshToken ||
+        req.headers.authorization?.split(" ")[1];
+
+    if (!refreshToken) {
+        throw new Apierror(400, "Refresh token is required");
+    }
+
+    const decodedToken = jwt.verify(
+        refreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+    );
+
+    const user = await User.findById(decodedToken?._id).select("+refreshToken");
+
+    if (!user) {
+        throw new Apierror(404, "User not found");
+    }
+
+    if (user.refreshToken !== refreshToken) {
+        throw new Apierror(401, "Invalid refresh token");
+    }
+
+    const newAccessToken = user.generateAccessToken();
+
+    const options = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    };
+
+    return res
+        .status(200)
+        .cookie("accessToken", newAccessToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    accessToken: newAccessToken
+                },
+                "Access token refreshed successfully"
+            )
+        );
+});
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken };
