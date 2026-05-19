@@ -6,22 +6,32 @@ import rateLimit from "express-rate-limit";
 import compression from "compression";
 
 const app = express();
+
 app.use(helmet());
 app.use(compression());
+
+app.use(cors({
+    origin: [
+        "https://video-manager-seven.vercel.app",
+        "https://video-manager-q0rtm2dg9-abhishek-jha-s-projects1.vercel.app"
+    ],
+    credentials: true
+}));
+
 const limiter = rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    windowMs: 15 * 60 * 1000,
+    max: 100,
     message: "Too many requests from this IP, please try again later"
 });
+
 app.use("/api", limiter);
 
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use(cookieParser());
 
-//routes
+// routes
 import userRoutes from "./routes/user.routes.js";
 import videoRoutes from "./routes/video.routes.js";
 import commentRoutes from "./routes/comment.routes.js";
@@ -31,7 +41,7 @@ import playlistRoutes from "./routes/playlist.routes.js";
 import dashboardRoutes from "./routes/dashboard.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
 
-//routes declaration
+// routes declaration
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/videos", videoRoutes);
 app.use("/api/v1/comments", commentRoutes);
@@ -41,12 +51,11 @@ app.use("/api/v1/playlists", playlistRoutes);
 app.use("/api/v1/dashboard", dashboardRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
 
-
 // Centralized Error Handling Middleware
 app.use((err, req, res, next) => {
     const statusCode = err.statusCode || 500;
     const message = err.message || "Internal Server Error";
-    
+
     return res.status(statusCode).json({
         success: false,
         statusCode,
