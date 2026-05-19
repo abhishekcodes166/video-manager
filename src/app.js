@@ -11,10 +11,21 @@ app.use(helmet());
 app.use(compression());
 
 app.use(cors({
-    origin: [
-        "https://video-manager-seven.vercel.app",
-        "https://video-manager-q0rtm2dg9-abhishek-jha-s-projects1.vercel.app"
-    ],
+    origin: function (origin, callback) {
+
+        const allowedOrigins = [
+            "https://video-manager-seven.vercel.app",
+            "https://video-manager-git-main-abhishek-jha-s-projects1.vercel.app",
+            "https://video-manager-q0rtm2dg9-abhishek-jha-s-projects1.vercel.app"
+        ];
+
+        if (!origin || allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+
     credentials: true
 }));
 
