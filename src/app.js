@@ -16,7 +16,9 @@ app.use(cors({
         const allowedOrigins = [
             "https://video-manager-seven.vercel.app",
             "https://video-manager-git-main-abhishek-jha-s-projects1.vercel.app",
-            "https://video-manager-q0rtm2dg9-abhishek-jha-s-projects1.vercel.app"
+            "https://video-manager-q0rtm2dg9-abhishek-jha-s-projects1.vercel.app",
+            "http://localhost:5173",
+            "http://127.0.0.1:5173"
         ];
 
         if (!origin || allowedOrigins.includes(origin)) {
