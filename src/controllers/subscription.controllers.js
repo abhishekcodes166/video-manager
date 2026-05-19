@@ -1,13 +1,13 @@
-import mongoose, {isValidObjectId} from "mongoose"
-import {User} from "../models/user.model.js"
-import {Subscription} from "../models/subscription.model.js"
-import {Notification} from "../models/notification.model.js"
-import {Apierror} from "../utils/ApiError.js"
-import {ApiResponse} from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/aysncHandler.js"
+import mongoose, { isValidObjectId } from "mongoose"
+import { User } from "../models/user.model.js"
+import { Subscription } from "../models/subscription.model.js"
+import { Notification } from "../models/notification.model.js"
+import { Apierror } from "../utils/ApiError.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
 
 const toggleSubscription = asyncHandler(async (req, res) => {
-    const {channelId} = req.params
+    const { channelId } = req.params
 
     if (!isValidObjectId(channelId)) {
         throw new Apierror(400, "Invalid channelId");
@@ -24,7 +24,7 @@ const toggleSubscription = asyncHandler(async (req, res) => {
 
     if (isSubscribed) {
         await Subscription.findByIdAndDelete(isSubscribed._id);
-        return res.status(200).json(new ApiResponse(200, {subscribed: false}, "Unsubscribed successfully"));
+        return res.status(200).json(new ApiResponse(200, { subscribed: false }, "Unsubscribed successfully"));
     }
 
     const newSubscription = await Subscription.create({
@@ -39,12 +39,12 @@ const toggleSubscription = asyncHandler(async (req, res) => {
         type: "subscription"
     });
 
-    return res.status(200).json(new ApiResponse(200, {subscribed: true, subscription: newSubscription}, "Subscribed successfully"));
+    return res.status(200).json(new ApiResponse(200, { subscribed: true, subscription: newSubscription }, "Subscribed successfully"));
 })
 
 // controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-    const {channelId} = req.params
+    const { channelId } = req.params
 
     if (!isValidObjectId(channelId)) {
         throw new Apierror(400, "Invalid channelId");

@@ -1,4 +1,4 @@
-import { asyncHandler } from "/Users/abhishekjha/Desktop/video manager/src/utils/aysncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 import { Apierror } from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadToCloudinary } from "../utils/cloudinary.js";
@@ -242,17 +242,17 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
         );
 });
 
-const changePassword = asyncHandler(async (req, res) => {   
+const changePassword = asyncHandler(async (req, res) => {
     // current password, new password
     // user id from auth middleware
     // current password check karo
     // new password hash karke save karo
     // response me success message bhejo
 
-    const {oldpassword,newpassword} = req.body;
-    
-    if(!oldpassword || !newpassword){
-        throw new Apierror(400,"Current password and new password are required");
+    const { oldpassword, newpassword } = req.body;
+
+    if (!oldpassword || !newpassword) {
+        throw new Apierror(400, "Current password and new password are required");
     }
 
     // user id from auth middleware
@@ -260,14 +260,14 @@ const changePassword = asyncHandler(async (req, res) => {
 
     const user = await User.findById(userId).select("+password");
 
-    if(!user){
-        throw new Apierror(404,"User not found");
+    if (!user) {
+        throw new Apierror(404, "User not found");
     }
 
     const isPasswordCorrect = await user.isPasswordCorrect(oldpassword);
 
-    if(!isPasswordCorrect){
-        throw new Apierror(401,"Current password is incorrect");
+    if (!isPasswordCorrect) {
+        throw new Apierror(401, "Current password is incorrect");
     }
 
     user.password = newpassword;
@@ -294,7 +294,7 @@ const getcurrentUser = asyncHandler(async (req, res) => {
             req.user,
             "Current user fetched successfully"
         )
-    );      
+    );
 });
 
 const updateProfile = asyncHandler(async (req, res) => {
@@ -368,44 +368,44 @@ const getuserprofile = asyncHandler(async (req, res) => {
 
     const channel = await User.aggregate([
         {
-            $match:{
+            $match: {
                 username: username.toLowerCase()
             }
         },
         {
-            $lookup:{
-                from : "subscriptions",
+            $lookup: {
+                from: "subscriptions",
                 localField: "_id",
                 foreignField: "channel",
                 as: "subscribers"
             }
         },
         {
-            $lookup:{
+            $lookup: {
                 from: "subscriptions",
-                localField:"_id",
-                foreignField:"subscriber",
+                localField: "_id",
+                foreignField: "subscriber",
                 as: "subscribedto"
             }
         },
         {
-            $addFields:{
-                subscribersCount:{$size:"$subscribers"},
-                subscribedToCount:{$size:"$subscribedto"},
+            $addFields: {
+                subscribersCount: { $size: "$subscribers" },
+                subscribedToCount: { $size: "$subscribedto" },
                 issubscribed: {
                     $in: [req.user?._id, "$subscribers.subscriber"]
                 }
             }
         },
         {
-            $project:{
-                fullName:1,
-                username:1,
-                avatar:1,
-                coverImage:1,
-                subscribersCount:1,
-                subscribedToCount:1,
-                issubscribed:1
+            $project: {
+                fullName: 1,
+                username: 1,
+                avatar: 1,
+                coverImage: 1,
+                subscribersCount: 1,
+                subscribedToCount: 1,
+                issubscribed: 1
             }
         }
     ]);
@@ -456,14 +456,14 @@ const searchUsers = asyncHandler(async (req, res) => {
     );
 });
 
-export { 
-    registerUser, 
-    loginUser, 
-    logoutUser, 
-    refreshAccessToken, 
-    changePassword, 
-    getuserprofile, 
-    getcurrentUser, 
+export {
+    registerUser,
+    loginUser,
+    logoutUser,
+    refreshAccessToken,
+    changePassword,
+    getuserprofile,
+    getcurrentUser,
     updateProfile,
     getWatchHistory,
     searchUsers

@@ -1,14 +1,14 @@
-import mongoose, {isValidObjectId} from "mongoose"
-import {Comment} from "../models/comment.model.js"
-import {Video} from "../models/video.model.js"
-import {Notification} from "../models/notification.model.js"
-import {Apierror} from "../utils/ApiError.js"
-import {ApiResponse} from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/aysncHandler.js"
+import mongoose, { isValidObjectId } from "mongoose"
+import { Comment } from "../models/comment.model.js"
+import { Video } from "../models/video.model.js"
+import { Notification } from "../models/notification.model.js"
+import { Apierror } from "../utils/ApiError.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
 
 const getVideoComments = asyncHandler(async (req, res) => {
-    const {videoId} = req.params
-    const {page = 1, limit = 10} = req.query
+    const { videoId } = req.params
+    const { page = 1, limit = 10 } = req.query
 
     if (!isValidObjectId(videoId)) {
         throw new Apierror(400, "Invalid videoId");
@@ -64,8 +64,8 @@ const getVideoComments = asyncHandler(async (req, res) => {
 })
 
 const addComment = asyncHandler(async (req, res) => {
-    const {videoId} = req.params
-    const {content} = req.body
+    const { videoId } = req.params
+    const { content } = req.body
 
     if (!isValidObjectId(videoId)) {
         throw new Apierror(400, "Invalid videoId");
@@ -102,8 +102,8 @@ const addComment = asyncHandler(async (req, res) => {
 })
 
 const updateComment = asyncHandler(async (req, res) => {
-    const {commentId} = req.params
-    const {content} = req.body
+    const { commentId } = req.params
+    const { content } = req.body
 
     if (!isValidObjectId(commentId)) {
         throw new Apierror(400, "Invalid commentId");
@@ -132,7 +132,7 @@ const updateComment = asyncHandler(async (req, res) => {
 })
 
 const deleteComment = asyncHandler(async (req, res) => {
-    const {commentId} = req.params
+    const { commentId } = req.params
 
     if (!isValidObjectId(commentId)) {
         throw new Apierror(400, "Invalid commentId");
@@ -156,8 +156,8 @@ const deleteComment = asyncHandler(async (req, res) => {
 })
 
 export {
-    getVideoComments, 
-    addComment, 
+    getVideoComments,
+    addComment,
     updateComment,
     deleteComment
 }

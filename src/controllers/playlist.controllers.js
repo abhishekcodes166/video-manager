@@ -1,12 +1,12 @@
-import mongoose, {isValidObjectId} from "mongoose"
-import {Playlist} from "../models/playlist.model.js"
-import {Video} from "../models/video.model.js"
-import {Apierror} from "../utils/ApiError.js"
-import {ApiResponse} from "../utils/ApiResponse.js"
-import {asyncHandler} from "../utils/aysncHandler.js"
+import mongoose, { isValidObjectId } from "mongoose"
+import { Playlist } from "../models/playlist.model.js"
+import { Video } from "../models/video.model.js"
+import { Apierror } from "../utils/ApiError.js"
+import { ApiResponse } from "../utils/ApiResponse.js"
+import { asyncHandler } from "../utils/asyncHandler.js"
 
 const createPlaylist = asyncHandler(async (req, res) => {
-    const {name, description} = req.body
+    const { name, description } = req.body
 
     if (!name || !description) {
         throw new Apierror(400, "Name and description are required");
@@ -27,7 +27,7 @@ const createPlaylist = asyncHandler(async (req, res) => {
 })
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
-    const {userId} = req.params
+    const { userId } = req.params
 
     if (!isValidObjectId(userId)) {
         throw new Apierror(400, "Invalid userId");
@@ -53,7 +53,7 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 })
 
 const getPlaylistById = asyncHandler(async (req, res) => {
-    const {playlistId} = req.params
+    const { playlistId } = req.params
 
     if (!isValidObjectId(playlistId)) {
         throw new Apierror(400, "Invalid playlistId");
@@ -75,7 +75,7 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 })
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
-    const {playlistId, videoId} = req.params
+    const { playlistId, videoId } = req.params
 
     if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
         throw new Apierror(400, "Invalid playlistId or videoId");
@@ -107,7 +107,7 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 })
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
-    const {playlistId, videoId} = req.params
+    const { playlistId, videoId } = req.params
 
     if (!isValidObjectId(playlistId) || !isValidObjectId(videoId)) {
         throw new Apierror(400, "Invalid playlistId or videoId");
@@ -130,7 +130,7 @@ const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
 })
 
 const deletePlaylist = asyncHandler(async (req, res) => {
-    const {playlistId} = req.params
+    const { playlistId } = req.params
 
     if (!isValidObjectId(playlistId)) {
         throw new Apierror(400, "Invalid playlistId");
@@ -152,8 +152,8 @@ const deletePlaylist = asyncHandler(async (req, res) => {
 })
 
 const updatePlaylist = asyncHandler(async (req, res) => {
-    const {playlistId} = req.params
-    const {name, description} = req.body
+    const { playlistId } = req.params
+    const { name, description } = req.body
 
     if (!isValidObjectId(playlistId)) {
         throw new Apierror(400, "Invalid playlistId");
